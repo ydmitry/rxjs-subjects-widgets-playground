@@ -3,11 +3,37 @@
   <head>
     <meta charset="utf-8">
     <meta http-equiv="x-ua-compatible" content="ie=edge">
-    <title>react-kickstart</title>
-    <meta name="description" content="just another react + webpack boilerplate">
+    <title>Streams test</title>
+    <meta name="description" content="">
     <meta name="viewport" content="width=device-width, initial-scale=1">
   </head>
   <body>
-    <div id="root"></div>
+    <div id="root">
+      <div class="widget">
+        <div class="component-input">
+          <input type="text" name="t" value="" />
+        </div>
+        <span class="component-label"></span>
+        <span class="component-validation-message"></span>
+        <button>OK</button>
+      </div>
+      <div class="widget" data-global="true">
+        <div class="component-input" data-component-name="input">
+          <input type="text" name="t" value="" />
+        </div>
+        <span class="component-label" data-component-name="label"></span>
+        <span class="component-validation-message"></span>
+        <button>OK</button>
+      </div>
+
+      <div class="widget" data-global="true">
+        <div class="component-input" data-component-name="input">
+          <input type="text" name="t" value="" />
+        </div>
+        <span class="component-label" data-component-name="label"></span>
+        <span class="component-validation-message"></span>
+        <button>OK</button>
+      </div>
+    </div>
   </body>
 </html>
