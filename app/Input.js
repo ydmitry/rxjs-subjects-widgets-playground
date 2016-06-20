@@ -8,10 +8,11 @@ export default class Input {
         }, options);
 
         this.state = {};
+        this.name = this.el.dataset.name;
 
         this.widgetStreamsSubject('store')
             .asObservable()
-            .map(this.mapStoreToState)
+            .map(this.mapStoreToState.bind(this))
             .filter(newState => !shallowEqual(newState, this.state))
             .subscribe(state => {
                 this.state = state;
@@ -33,7 +34,7 @@ export default class Input {
 
         this.widgetStreamsSubject('form').next({
             type: 'change',
-            name: 't',
+            name: this.name,
             value: e.target.value
         });
 
@@ -42,7 +43,7 @@ export default class Input {
 
     mapStoreToState(store) {
         return {
-            value: store.form.t || ''
+            value: store.form[this.name] || ''
         };
     }
 }

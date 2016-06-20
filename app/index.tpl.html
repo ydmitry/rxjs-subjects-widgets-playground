@@ -6,33 +6,61 @@
     <title>Streams test</title>
     <meta name="description" content="">
     <meta name="viewport" content="width=device-width, initial-scale=1">
+    <STYLE>
+      .error {
+      border: 1px solid #F00;
+      }
+
+      .test {
+      border: 1px solid #00F;
+      }
+    </STYLE>
   </head>
   <body>
     <div id="root">
       <div class="widget">
-        <div class="component-input">
+        <div class="component-input" data-name="t">
           <input type="text" name="t" value="" />
         </div>
-        <span class="component-label"></span>
-        <span class="component-validation-message"></span>
-        <button>OK</button>
-      </div>
-      <div class="widget" data-global="true">
-        <div class="component-input" data-component-name="input">
-          <input type="text" name="t" value="" />
-        </div>
-        <span class="component-label" data-component-name="label"></span>
-        <span class="component-validation-message"></span>
+        <span class="component-label" data-name="t"></span>
+        <span class="component-validation-message" data-name="t"></span>
         <button>OK</button>
       </div>
 
       <div class="widget" data-global="true">
-        <div class="component-input" data-component-name="input">
+        <div class="component-input" data-name="t">
           <input type="text" name="t" value="" />
         </div>
-        <span class="component-label" data-component-name="label"></span>
-        <span class="component-validation-message"></span>
+        <span class="component-label" data-name="t"></span>
+        <span class="component-validation-message" data-name="t"></span>
         <button>OK</button>
+      </div>
+
+      <div class="widget" data-global="true">
+        <div class="component-input" data-name="t">
+          <input type="text" name="t" value="" />
+        </div>
+        <span class="component-label" data-name="t"></span>
+        <span class="component-validation-message" data-name="t"></span>
+        <button>OK</button>
+
+        <div class="component-toggle" data-name="test" data-global="true">
+          test
+        </div>
+
+      </div>
+
+
+
+
+      <div class="widget">
+        <button class="component-toggle" data-target-name="test" data-trigger="click" data-toggle-class="test" data-global="true">Change</button>
+
+
+        <div class="component-toggle" data-name="test">
+          test
+        </div>
+        <button class="component-toggle" data-target-name="test" data-trigger="click" data-toggle-class="test">Change</button>
       </div>
     </div>
   </body>

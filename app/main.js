@@ -1,11 +1,11 @@
 import map from 'ramda/src/map';
 import Input from './Input';
 import Label from './Label';
+import Toggle from './Toggle';
 import ValidationMessage from './ValidationMessage';
 import WidgetForm from './WidgetForm';
 import attach from './attach';
 import createStreamsSubject from './createStreamsSubject';
-import './main.css';
 
 
 const globalStreamsSubject = createStreamsSubject({});
@@ -27,5 +27,6 @@ map(el => {
     map(attachComponent(Input), el.querySelectorAll('.component-input'));
     map(attachComponent(Label), el.querySelectorAll('.component-label'));
     map(attachComponent(ValidationMessage), el.querySelectorAll('.component-validation-message'));
+    map(attachComponent(Toggle), el.querySelectorAll('.component-toggle'));
 
 }, root.querySelectorAll('.widget'));

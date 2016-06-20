@@ -8,10 +8,11 @@ export default class Label {
         }, options);
 
         this.state = {};
+        this.name = this.el.dataset.name;
 
         this.widgetStreamsSubject('store')
             .asObservable()
-            .map(this.mapStoreToState)
+            .map(this.mapStoreToState.bind(this))
             .filter(newState => !shallowEqual(newState, this.state))
             .subscribe(state => {
                 this.state = state;
@@ -26,7 +27,7 @@ export default class Label {
 
     mapStoreToState(store) {
         return {
-            message: store.validationMessages.t || ''
+            message: store.validationMessages[this.name] || ''
         };
     }
 }
