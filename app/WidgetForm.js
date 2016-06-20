@@ -1,4 +1,6 @@
 import mapObjIndexed from 'ramda/src/mapObjIndexed';
+import isEmpty from 'ramda/src/isEmpty';
+
 export default class WidgetForm {
     constructor(options) {
         mapObjIndexed((v, i) => {
@@ -12,27 +14,50 @@ export default class WidgetForm {
 
         this.global = this.el.dataset.global;
 
-        if (!this.global) {
-            formSubject
+        this.widgetStore = {
+            form: {},
+            validationMessages: {}
+        };
+
+        // Update widget store if actions happened
+        formSubject
+            .asObservable()
+            .merge(validationSubject.asObservable())
+            .scan(this.widgetReducer.bind(this), this.widgetStore)
+            .startWith(this.widgetStore)
+            .subscribe(store => {
+                this.widgetStore = store;
+                widgetStoreSubject.next(store);
+            });
+
+        if (this.global) {
+
+            // Synchronize global and widget stores:
+
+            // 1. Update widget store after receiving global store
+            globalStoreSubject
                 .asObservable()
-                .merge(validationSubject.asObservable())
-                .scan(this.widgetReducer, this.widgetStore)
+                .filter(store => this.widgetStore.form != store.searchForm)
                 .subscribe(store => {
-                    widgetStoreSubject.next(store);
-                    //globalStoreSubject.next(store);
-                });
-        } else {
-            formSubject
-                .asObservable()
-                .scan(this.globalReducer, this.globalStore)
-                .subscribe(store => {
-                    globalStoreSubject.next(store);
+                    this.widgetStore.form = store.searchForm;
+
+                    if (!isEmpty(this.widgetStore.validationMessages)) {
+                        this.widgetStore.validationMessages = this.checkValidationMessages(this.widgetStore.form);
+                    }
+
+                    widgetStoreSubject.next(this.widgetStore);
                 });
 
-            globalStoreSubject
+            // 2. Update global store after receiving widget store
+            widgetStoreSubject
+                .asObservable()
+                .filter(store => this.globalStore.searchForm != store.form)
                 .subscribe(store => {
-                    widgetStoreSubject.next(store);
+                    this.globalStore.searchForm = store.form;
+                    globalStoreSubject.next(this.globalStore);
                 });
+
+
         }
 
         this.el.querySelector('button').addEventListener('click', function() {
@@ -46,34 +71,29 @@ export default class WidgetForm {
 
         acc.form = acc.form || {};
         acc.validationMessages = acc.validationMessages || {};
+        //debugger;
         switch (action.type) {
             case 'change':
+                acc.form = Object.assign({}, acc.form);
                 acc.form[action.name] = action.value;
                 if (acc.validationMessages[action.name]) {
                     acc.validationMessages[action.name] = '';
                 }
                 break;
             case 'validation':
-                acc.valid = true;
-                if (acc.form.t == '1') {
-                    acc.valid = true;
-                    acc.validationMessages.t = "Can't be '1'";
-                }
+                acc.validationMessages = this.checkValidationMessages(acc.form);
                 break;
         }
 
         return acc;
     }
 
-    globalReducer(acc, action) {
-
-        acc.searchForm = acc.searchForm || {};
-        switch (action.type) {
-            case 'change':
-                acc.searchForm[action.name] = action.value;
-                break;
+    checkValidationMessages(data) {
+        let messages = {};
+        if (data.t == '1') {
+            messages.t = "Can't be '1'";
         }
 
-        return acc;
+        return messages;
     }
 }
