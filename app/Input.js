@@ -3,12 +3,18 @@ import shallowEqual from 'shallowequal';
 
 export default class Input {
     constructor(options) {
-        mapObjIndexed((v, i) => {
-            this[i] = v;
-        }, options);
+        //mapObjIndexed((v, i) => {
+        //    this[i] = v;
+        //}, options);
+
+        this.el = options.el;
+        this.widgetStreamsSubject = options.widgetStreamsSubject;
+
+
+        this.name = this.el.dataset.name;
 
         this.state = {};
-        this.name = this.el.dataset.name;
+
 
         this.widgetStreamsSubject('store')
             .asObservable()

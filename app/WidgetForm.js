@@ -3,9 +3,14 @@ import isEmpty from 'ramda/src/isEmpty';
 
 export default class WidgetForm {
     constructor(options) {
-        mapObjIndexed((v, i) => {
-            this[i] = v;
-        }, options);
+        //mapObjIndexed((v, i) => {
+        //    this[i] = v;
+        //}, options);
+        this.el = options.el;
+        this.widgetStreamsSubject = options.widgetStreamsSubject;
+        this.globalStreamsSubject = options.globalStreamsSubject;
+        this.widgetStore = options.widgetStore;
+        this.globalStore = options.globalStore;
 
         let widgetStoreSubject = this.widgetStreamsSubject('store');
         let globalStoreSubject = this.globalStreamsSubject('store');
