@@ -9,14 +9,14 @@ export default class Input {
 
         this.el = options.el;
         this.widgetStreamsSubject = options.widgetStreamsSubject;
-
+        this.widgetStoreSubject = options.widgetStoreSubject;
 
         this.name = this.el.dataset.name;
 
         this.state = {};
 
 
-        this.widgetStreamsSubject('store')
+        this.widgetStoreSubject
             .asObservable()
             .map(this.mapStoreToState.bind(this))
             .filter(newState => !shallowEqual(newState, this.state))

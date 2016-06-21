@@ -9,11 +9,9 @@ export default class WidgetForm {
         this.el = options.el;
         this.widgetStreamsSubject = options.widgetStreamsSubject;
         this.globalStreamsSubject = options.globalStreamsSubject;
-        this.widgetStore = options.widgetStore;
-        this.globalStore = options.globalStore;
+        this.widgetStoreSubject = options.widgetStoreSubject;
+        this.globalStoreSubject = options.globalStoreSubject;
 
-        let widgetStoreSubject = this.widgetStreamsSubject('store');
-        let globalStoreSubject = this.globalStreamsSubject('store');
         let formSubject = this.widgetStreamsSubject('form');
         let validationSubject = this.widgetStreamsSubject('validation');
 
@@ -25,14 +23,12 @@ export default class WidgetForm {
         };
 
         // Update widget store if actions happened
-        formSubject
+        this.widgetStoreSubject
             .asObservable()
             .merge(validationSubject.asObservable())
-            .scan(this.widgetReducer.bind(this), this.widgetStore)
-            .startWith(this.widgetStore)
+            .scan(this.widgetReducer.bind(this))
             .subscribe(store => {
-                this.widgetStore = store;
-                widgetStoreSubject.next(store);
+                this.widgetStoreSubject.next(store);
             });
 
         if (this.global) {
@@ -40,26 +36,28 @@ export default class WidgetForm {
             // Synchronize global and widget stores:
 
             // 1. Update widget store after receiving global store
-            globalStoreSubject
+            this.globalStoreSubject
                 .asObservable()
-                .filter(store => this.widgetStore.form != store.searchForm)
+                .combineLatest(this.widgetStoreSubject.asObservable())
+                .filter(([store, widgetStore]) => widgetStore.form != store.searchForm)
                 .subscribe(store => {
-                    this.widgetStore.form = store.searchForm;
-
-                    if (!isEmpty(this.widgetStore.validationMessages)) {
-                        this.widgetStore.validationMessages = this.checkValidationMessages(this.widgetStore.form);
-                    }
-
-                    widgetStoreSubject.next(this.widgetStore);
+                    this.widgetStoreSubject.next({
+                        action: 'updateForm',
+                        form: store.searchForm
+                    });
                 });
 
             // 2. Update global store after receiving widget store
-            widgetStoreSubject
+            this.widgetStoreSubject
                 .asObservable()
-                .filter(store => this.globalStore.searchForm != store.form)
+                .combineLatest(this.globalStoreSubject.asObservable())
+                .filter(([store, globalStore]) => globalStore.searchForm != store.form)
                 .subscribe(store => {
-                    this.globalStore.searchForm = store.form;
-                    globalStoreSubject.next(this.globalStore);
+                    this.globalStoreSubject.next({
+                        type: 'update',
+                        prop: 'searchForm',
+                        value: store.form
+                    });
                 });
 
 
@@ -87,6 +85,14 @@ export default class WidgetForm {
                 break;
             case 'validation':
                 acc.validationMessages = this.checkValidationMessages(acc.form);
+                break;
+
+            case 'updateForm':
+                acc.form = action.form;
+
+                if (!isEmpty(acc.validationMessages)) {
+                    acc.validationMessages = this.checkValidationMessages(acc.form);
+                }
                 break;
         }
 
