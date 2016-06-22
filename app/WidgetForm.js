@@ -58,7 +58,7 @@ export default class WidgetForm {
 
         }
 
-        this.el.querySelector('button').addEventListener('click', function() {
+        this.el.querySelector('button').addEventListener('click', () => {
             this.widgetStoreDispatcher$.onNext({
                 type: 'validation'
             });
