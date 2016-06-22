@@ -10,8 +10,6 @@ import { ReplaySubject, Subject, Observable } from 'rx';
 
 const globalStreamsSubject = createStreamsSubject({});
 
-const globalStore = {};
-
 const globalStoreDispatcher$ = new Subject();
 const globalStoreState$ = new ReplaySubject(1);
 
@@ -28,51 +26,56 @@ globalStoreDispatcher$
     .subscribe(state => globalStoreState$.onNext(state));
 
 
-globalStoreDispatcher$.onNext({
-    type: 'update',
-    name: 'test',
-    value: 1
-});
-
-globalStoreDispatcher$.onNext({
-    type: 'update',
-    name: 'abc',
-    value: 2
-});
-
-globalStoreState$.subscribe(x => {
-    console.log('widget 1', x);
-});
-
-
-setTimeout(function() {
-    console.log('timeout done');
-    globalStoreState$.subscribe(x => {
-        console.log('widget 2', x);
-    });
-}, 2000);
-
+//globalStoreDispatcher$.onNext({
+//    type: 'update',
+//    name: 'test',
+//    value: 1
+//});
 //
-//const root = document.getElementById('root');
+//globalStoreDispatcher$.onNext({
+//    type: 'update',
+//    name: 'abc',
+//    value: 2
+//});
+//
+//globalStoreState$.subscribe(x => {
+//    console.log('widget 1', x);
+//});
 //
 //
-//map(el => {
-//    const widgetStore = {};
-//    const widgetStoreSubject = new ReplaySubject(1);
-//    const widgetStreamsSubject = createStreamsSubject({});
-//    const attachComponent = attach(
-//        widgetStreamsSubject, globalStreamsSubject,
-//        widgetStore, globalStore,
-//        widgetStoreSubject, globalStoreSubject
-//    );
-//
-//    new WidgetForm({
-//        el, widgetStreamsSubject, globalStreamsSubject, widgetStore, globalStore, globalStoreSubject
+//setTimeout(function() {
+//    console.log('timeout done');
+//    globalStoreState$.subscribe(x => {
+//        console.log('widget 2', x);
 //    });
-//
-//    map(attachComponent(Input), el.querySelectorAll('.component-input'));
-////    map(attachComponent(Label), el.querySelectorAll('.component-label'));
-////    map(attachComponent(ValidationMessage), el.querySelectorAll('.component-validation-message'));
-////    map(attachComponent(Toggle), el.querySelectorAll('.component-toggle'));
-//
-//}, root.querySelectorAll('.widget'));
+//}, 2000);
+
+
+const root = document.getElementById('root');
+
+
+map(el => {
+    const widgetStreamsSubject = createStreamsSubject({});
+    const widgetStoreDispatcher$ = new Subject();
+    const widgetStoreState$ = new ReplaySubject(1);
+
+
+    const attachComponent = attach({
+        widgetStreamsSubject, globalStreamsSubject,
+        widgetStoreDispatcher$, globalStoreDispatcher$,
+        widgetStoreState$, globalStoreState$
+    });
+
+    new WidgetForm({
+        el,
+        widgetStreamsSubject, globalStreamsSubject,
+        widgetStoreDispatcher$, globalStoreDispatcher$,
+        widgetStoreState$, globalStoreState$
+    });
+
+    map(attachComponent(Input), el.querySelectorAll('.component-input'));
+    map(attachComponent(Label), el.querySelectorAll('.component-label'));
+//    map(attachComponent(ValidationMessage), el.querySelectorAll('.component-validation-message'));
+//    map(attachComponent(Toggle), el.querySelectorAll('.component-toggle'));
+
+}, root.querySelectorAll('.widget-form'));

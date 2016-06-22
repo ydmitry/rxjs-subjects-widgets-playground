@@ -7,56 +7,51 @@ export default class WidgetForm {
         //    this[i] = v;
         //}, options);
         this.el = options.el;
-        this.widgetStreamsSubject = options.widgetStreamsSubject;
-        this.globalStreamsSubject = options.globalStreamsSubject;
-        this.widgetStoreSubject = options.widgetStoreSubject;
-        this.globalStoreSubject = options.globalStoreSubject;
-
-        let formSubject = this.widgetStreamsSubject('form');
-        let validationSubject = this.widgetStreamsSubject('validation');
+        //this.widgetStreamsSubject = options.widgetStreamsSubject;
+        //this.globalStreamsSubject = options.globalStreamsSubject;
+        this.widgetStoreDispatcher$ = options.widgetStoreDispatcher$;
+        this.globalStoreDispatcher$ = options.globalStoreDispatcher$;
+        this.widgetStoreState$ = options.widgetStoreState$;
+        this.globalStoreState$ = options.globalStoreState$;
 
         this.global = this.el.dataset.global;
 
-        this.widgetStore = {
-            form: {},
-            validationMessages: {}
-        };
-
         // Update widget store if actions happened
-        this.widgetStoreSubject
-            .asObservable()
-            .merge(validationSubject.asObservable())
-            .scan(this.widgetReducer.bind(this))
-            .subscribe(store => {
-                this.widgetStoreSubject.next(store);
-            });
+        this.widgetStoreDispatcher$
+            .scan(this.widgetReducer.bind(this), {
+                form: {},
+                validationMessages: {}
+            })
+            .subscribe(state => this.widgetStoreState$.onNext(state));
 
         if (this.global) {
 
             // Synchronize global and widget stores:
 
             // 1. Update widget store after receiving global store
-            this.globalStoreSubject
-                .asObservable()
-                .combineLatest(this.widgetStoreSubject.asObservable())
-                .filter(([store, widgetStore]) => widgetStore.form != store.searchForm)
-                .subscribe(store => {
-                    this.widgetStoreSubject.next({
-                        action: 'updateForm',
-                        form: store.searchForm
+            this.globalStoreState$
+                .combineLatest(this.widgetStoreState$.startWith({}))
+                .filter(([globalState, widgetState]) => {
+                    return widgetState.form != globalState.searchForm
+                })
+                .subscribe(([state,]) => {
+                    this.widgetStoreDispatcher$.onNext({
+                        type: 'updateForm',
+                        form: state.searchForm
                     });
                 });
 
             // 2. Update global store after receiving widget store
-            this.widgetStoreSubject
-                .asObservable()
-                .combineLatest(this.globalStoreSubject.asObservable())
-                .filter(([store, globalStore]) => globalStore.searchForm != store.form)
-                .subscribe(store => {
-                    this.globalStoreSubject.next({
+            this.widgetStoreState$
+                .combineLatest(this.globalStoreState$.startWith({}))
+                .filter(([widgetState, globalState]) => {
+                    return widgetState.form != globalState.searchForm
+                })
+                .subscribe(([state]) => {
+                    this.globalStoreDispatcher$.onNext({
                         type: 'update',
-                        prop: 'searchForm',
-                        value: store.form
+                        name: 'searchForm',
+                        value: state.form
                     });
                 });
 
@@ -64,17 +59,16 @@ export default class WidgetForm {
         }
 
         this.el.querySelector('button').addEventListener('click', function() {
-            validationSubject.next({
+            this.widgetStoreDispatcher$.onNext({
                 type: 'validation'
-            })
+            });
         });
     }
 
     widgetReducer(acc, action) {
-
         acc.form = acc.form || {};
         acc.validationMessages = acc.validationMessages || {};
-        //debugger;
+
         switch (action.type) {
             case 'change':
                 acc.form = Object.assign({}, acc.form);
@@ -93,6 +87,9 @@ export default class WidgetForm {
                 if (!isEmpty(acc.validationMessages)) {
                     acc.validationMessages = this.checkValidationMessages(acc.form);
                 }
+
+
+
                 break;
         }
 

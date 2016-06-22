@@ -8,13 +8,15 @@ export default class Label {
         //}, options);
 
         this.el = options.el;
-        this.widgetStreamsSubject = options.widgetStreamsSubject;
+//        this.widgetStreamsSubject = options.widgetStreamsSubject;
 
         this.state = {};
         this.name = this.el.dataset.name;
 
-        this.widgetStreamsSubject('store')
-            .asObservable()
+        this.widgetStoreDispatcher$ = options.widgetStoreDispatcher$;
+        this.widgetStoreState$ = options.widgetStoreState$;
+
+        this.widgetStoreState$
             .map(this.mapStoreToState.bind(this))
             .filter(newState => !shallowEqual(newState, this.state))
             .subscribe(state => {

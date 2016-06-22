@@ -8,37 +8,32 @@ export default class Input {
         //}, options);
 
         this.el = options.el;
-        this.widgetStreamsSubject = options.widgetStreamsSubject;
-        this.widgetStoreSubject = options.widgetStoreSubject;
+        this.widgetStoreDispatcher$ = options.widgetStoreDispatcher$;
+        this.widgetStoreState$ = options.widgetStoreState$;
 
         this.name = this.el.dataset.name;
-
         this.state = {};
 
-
-        this.widgetStoreSubject
-            .asObservable()
+        this.widgetStoreState$
             .map(this.mapStoreToState.bind(this))
             .filter(newState => !shallowEqual(newState, this.state))
-            .subscribe(state => {
-                this.state = state;
-                this.render();
-            });
+            .subscribe(this.render.bind(this));
 
         this.onChange = this.onChange.bind(this);
         this.el.querySelector('input').addEventListener('keyup', this.onChange);
     }
 
-    render() {
+    render(state) {
         let input = this.el.querySelector('input');
-        input.value = this.state.value;
+        input.value = state.value;
+        this.state = state;
     }
 
     onChange(e) {
 
         console.log('onChange');
 
-        this.widgetStreamsSubject('form').next({
+        this.widgetStoreDispatcher$.onNext({
             type: 'change',
             name: this.name,
             value: e.target.value
