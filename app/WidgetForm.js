@@ -31,10 +31,13 @@ export default class WidgetForm {
             // 1. Update widget store after receiving global store
             this.globalStoreState$
                 .combineLatest(this.widgetStoreState$.startWith({}))
+                .distinctUntilChanged(x => x[0])
                 .filter(([globalState, widgetState]) => {
+                    debugger;
                     return widgetState.form != globalState.searchForm
                 })
                 .subscribe(([state,]) => {
+                    debugger;
                     this.widgetStoreDispatcher$.onNext({
                         type: 'updateForm',
                         form: state.searchForm
@@ -44,10 +47,14 @@ export default class WidgetForm {
             // 2. Update global store after receiving widget store
             this.widgetStoreState$
                 .combineLatest(this.globalStoreState$.startWith({}))
+                .distinctUntilChanged(x => x[0])
                 .filter(([widgetState, globalState]) => {
+                    debugger;
                     return widgetState.form != globalState.searchForm
                 })
+
                 .subscribe(([state]) => {
+                    debugger;
                     this.globalStoreDispatcher$.onNext({
                         type: 'update',
                         name: 'searchForm',
