@@ -75,7 +75,7 @@ map(el => {
 
     map(attachComponent(Input), el.querySelectorAll('.component-input'));
     map(attachComponent(Label), el.querySelectorAll('.component-label'));
-//    map(attachComponent(ValidationMessage), el.querySelectorAll('.component-validation-message'));
-//    map(attachComponent(Toggle), el.querySelectorAll('.component-toggle'));
+    map(attachComponent(ValidationMessage), el.querySelectorAll('.component-validation-message'));
+    map(attachComponent(Toggle), el.querySelectorAll('.component-toggle'));
 
 }, root.querySelectorAll('.widget-form'));
