@@ -13,14 +13,7 @@ export default class Input {
 
         this.widgetStoreState$
             .map(this.mapStoreToState.bind(this))
-            //.distinctUntilChanged(x => x, compose(not, shallowEqual))
-            //.distinctUntilChanged(x => {
-            //    debugger;
-            //    return x;
-            //}, (a, b) => {
-            //    debugger;
-            //    return !shallowEqual(a, b);
-            //})
+            .distinctUntilChanged(x => x, shallowEqual)
             .subscribe(this.render.bind(this));
 
         this.onChange = this.onChange.bind(this);
@@ -46,7 +39,6 @@ export default class Input {
     }
 
     mapStoreToState(store) {
-        debugger;
         return {
             value: store.form[this.name] || ''
         };

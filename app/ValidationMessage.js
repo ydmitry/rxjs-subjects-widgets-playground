@@ -6,22 +6,16 @@ export default class Label {
 
         this.el = options.el;
         this.widgetStoreState$ = options.widgetStoreState$;
-
-        this.state = {};
         this.name = this.el.dataset.name;
 
         this.widgetStoreState$
             .map(this.mapStoreToState.bind(this))
-            .filter(newState => !shallowEqual(newState, this.state))
-            .subscribe(state => {
-                this.state = state;
-                this.render();
-            });
+            .distinctUntilChanged(x => x, shallowEqual)
+            .subscribe(this.render.bind(this));
     }
 
-    render() {
-
-        this.el.innerHTML = this.state.message;
+    render(state) {
+        this.el.innerHTML = state.message;
     }
 
     mapStoreToState(store) {

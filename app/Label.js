@@ -3,14 +3,7 @@ import shallowEqual from 'shallowequal';
 
 export default class Label {
     constructor(options) {
-        //mapObjIndexed((v, i) => {
-        //    this[i] = v;
-        //}, options);
-
         this.el = options.el;
-//        this.widgetStreamsSubject = options.widgetStreamsSubject;
-
-        this.state = {};
         this.name = this.el.dataset.name;
 
         this.widgetStoreDispatcher$ = options.widgetStoreDispatcher$;
@@ -18,15 +11,12 @@ export default class Label {
 
         this.widgetStoreState$
             .map(this.mapStoreToState.bind(this))
-            .filter(newState => !shallowEqual(newState, this.state))
-            .subscribe(state => {
-                this.state = state;
-                this.render();
-            });
+            .distinctUntilChanged(x => x, shallowEqual)
+            .subscribe(this.render.bind(this));
     }
 
-    render() {
-        this.el.innerHTML = this.state.value;
+    render(state) {
+        this.el.innerHTML = state.value;
     }
 
     mapStoreToState(store) {

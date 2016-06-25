@@ -3,9 +3,6 @@ import shallowEqual from 'shallowequal';
 
 export default class Input {
     constructor(options) {
-        //mapObjIndexed((v, i) => {
-        //    this[i] = v;
-        //}, options);
         this.el = options.el;
         this.widgetStreamsSubject = options.widgetStreamsSubject;
         this.globalStreamsSubject = options.globalStreamsSubject;
