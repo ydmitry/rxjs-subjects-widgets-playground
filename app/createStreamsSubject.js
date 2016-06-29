@@ -1,4 +1,4 @@
-import { Subject } from 'rxjs';
+import { Subject } from 'rx';
 
 export default function(streams) {
     return function(name) {
