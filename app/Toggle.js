@@ -19,7 +19,6 @@ export default class Input {
         this.click = this.click.bind(this);
 
         this.name && this.subject
-            .asObservable()
             .filter(action => action.name == this.name)
             .subscribe(this.toggle);
 
@@ -32,7 +31,7 @@ export default class Input {
 
     click(e) {
 
-        this.subject.next({
+        this.subject.onNext({
             name: this.targetName,
             toggleClass: this.toggleClass
         });
